@@ -1,12 +1,11 @@
 import os
+import textwrap
 
 from pyzenodo3.base import Zenodo
 from tabulate import tabulate
 
-token = os.getenv("ZENODO_SANDBOX_TOKEN", None)
-zenodo_client = Zenodo(
-    api_key=token, base_url="https://sandbox.zenodo.org/api/"
-)
+token = os.getenv("ZENODO_TOKEN", None)
+zenodo_client = Zenodo(api_key=token, base_url="https://zenodo.org/api/")
 
 
 def search_records(
@@ -28,13 +27,15 @@ def search_records(
         meta = data["metadata"]
 
         data_dict["ids"].append(data["id"])
-        data_dict["titles"].append(meta["title"])
-        data_dict["versions"].append(meta["version"])
+        title = meta["title"]
+        wrapped_title = "\n".join(textwrap.wrap(title, width=30))
+        data_dict["titles"].append(wrapped_title)
+        data_dict["versions"].append(meta.get("version", "---"))
         data_dict["files"].append(
-            "\n".join([f"{f['key']}" for f in data["files"]])
+            "\n".join([f"{f['key']}" for f in data.get("files", [])])
         )
         data_dict["checksums"].append(
-            "\n".join([f"{f['checksum']}" for f in data["files"]])
+            "\n".join([f"{f['checksum']}" for f in data.get("files", [])])
         )
         data_dict["dates"].append(meta["publication_date"])
 
