@@ -9,9 +9,12 @@ zenodo_client = Zenodo(api_key=token, base_url="https://zenodo.org/api/")
 
 
 def search_records(
-    search="User tools for the NSLS-II Science Network", showindex=True
+    search="User tools for the NSLS-II Science Network",
+    showindex=True,
+    tablefmt="grid",
+    **kwargs,
 ):
-    results = zenodo_client.search(search)
+    results = zenodo_client.search(search, **kwargs)
 
     data_dict = dict(
         ids=[],
@@ -21,6 +24,11 @@ def search_records(
         checksums=[],
         dates=[],
     )
+
+    if showindex:
+        counter = range(1, len(results)+1)
+    else:
+        counter = False
 
     for res in results:
         data = res.data
@@ -39,6 +47,7 @@ def search_records(
         )
         data_dict["dates"].append(meta["publication_date"])
 
-    print(tabulate(data_dict, headers=data_dict.keys(), showindex=showindex))
+    print(tabulate(data_dict, headers=data_dict.keys(), showindex=counter,
+                   tablefmt=tablefmt))
 
     return data_dict
